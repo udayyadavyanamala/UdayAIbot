@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: udaysai
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: NODE_ENV
+        value: production
