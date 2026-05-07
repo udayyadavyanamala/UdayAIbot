@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uday's AI — Premium AI Chat</title>
+  <meta name="description"
+    content="Uday's AI is a premium AI chatbot powered by multiple AI models. Fast, beautiful, and free.">
+  <meta name="theme-color" content="#0a0a0f">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+
+  <!-- Highlight.js for code -->
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark-dimmed.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+  <!-- Marked.js for markdown -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+
+<body>
+  <div class="app" id="app">
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <span class="logo-text">Uday's AI</span>
+        </div>
+        <button class="btn-icon sidebar-close" id="sidebarClose" aria-label="Close sidebar">
+          <i data-lucide="panel-left-close"></i>
+        </button>
+      </div>
+
+      <button class="new-chat-btn" id="newChatBtn">
+        <i data-lucide="plus"></i>
+        <span>New Chat</span>
+      </button>
+
+      <div class="sidebar-search">
+        <i data-lucide="search" class="search-icon"></i>
+        <input type="text" id="searchInput" placeholder="Search conversations..." autocomplete="off">
+      </div>
+
+      <div class="chat-list" id="chatList">
+        <!-- Dynamically populated -->
+      </div>
+
+      <div class="sidebar-footer">
+        <button class="sidebar-footer-btn" id="settingsBtn">
+          <i data-lucide="settings"></i>
+          <span>Settings</span>
+        </button>
+        <button class="sidebar-footer-btn" id="exportBtn">
+          <i data-lucide="download"></i>
+          <span>Export</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- ===== SIDEBAR OVERLAY (mobile) ===== -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- ===== MAIN CHAT AREA ===== -->
+    <main class="main" id="main">
+
+      <!-- Top Bar -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="btn-icon" id="sidebarToggle" aria-label="Toggle sidebar">
+            <i data-lucide="menu"></i>
+          </button>
+          <div class="topbar-title" id="topbarTitle">
+            <h1>New Chat</h1>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <div class="model-selector-mini" id="modelSelectorMini">
+            <i data-lucide="cpu"></i>
+            <select id="modelSelectMini" aria-label="Select AI model">
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+          <button class="btn-icon" id="themeToggle" aria-label="Toggle theme">
+            <i data-lucide="moon" id="themeIconDark"></i>
+            <i data-lucide="sun" id="themeIconLight" style="display:none"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- Chat Messages -->
+      <div class="chat-container" id="chatContainer">
+        <div class="messages" id="messages">
+
+          <!-- Welcome Screen -->
+          <div class="welcome" id="welcomeScreen">
+            <div class="welcome-icon">
+              <div class="welcome-orb">
+                <i data-lucide="sparkles"></i>
+              </div>
+            </div>
+            <h2>Welcome to <span class="gradient-text">Uday's AI</span></h2>
+            <p>Your premium AI assistant. Ask me anything — coding, writing, analysis, or just chat.</p>
+            <div class="welcome-chips">
+              <button class="chip" data-prompt="Explain quantum computing in simple terms">
+                <i data-lucide="atom"></i> Explain quantum computing
+              </button>
+              <button class="chip" data-prompt="Write a Python function to sort a list using merge sort">
+                <i data-lucide="code-2"></i> Write merge sort in Python
+              </button>
+              <button class="chip" data-prompt="Give me 5 creative startup ideas for 2025">
+                <i data-lucide="lightbulb"></i> Startup ideas
+              </button>
+              <button class="chip" data-prompt="Help me write a professional email to my manager">
+                <i data-lucide="mail"></i> Draft a professional email
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Typing Indicator -->
+      <div class="typing-indicator" id="typingIndicator" style="display:none">
+        <div class="typing-dots">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+
+      <!-- Input Area -->
+      <div class="input-area">
+        <div class="input-wrapper" id="inputWrapper">
+          <!-- File Upload Preview -->
+          <div class="file-upload-preview" id="fileUploadPreview"
+            style="display: none; padding: 10px; border-bottom: 1px solid var(--border); align-items: center; justify-content: space-between; background: var(--bg-2);">
+            <div style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-2);">
+              <i data-lucide="file" style="width: 16px; height: 16px;"></i>
+              <span id="fileNameDisplay"
+                style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></span>
+            </div>
+            <button class="btn-icon" id="clearFileBtn" aria-label="Clear file" style="width: 24px; height: 24px;">
+              <i data-lucide="x" style="width: 14px; height: 14px;"></i>
+            </button>
+          </div>
+          <textarea id="messageInput" placeholder="Message Uday's AI..." rows="1" autofocus></textarea>
+          <div class="input-actions">
+            <span class="char-count" id="charCount">0</span>
+            <button class="btn-icon" id="uploadBtn" aria-label="Upload file">
+              <i data-lucide="paperclip"></i>
+            </button>
+            <input type="file" id="fileInput" hidden>
+
+            <button class="send-btn" id="sendBtn" disabled aria-label="Send message">
+              <i data-lucide="arrow-up"></i>
+            </button>
+          </div>
+        </div>
+        <p class="input-hint">
+          <kbd>Enter</kbd> to send · <kbd>Shift+Enter</kbd> for new line · <kbd>Ctrl+N</kbd> new chat
+        </p>
+      </div>
+    </main>
+  </div>
+
+  <!-- ===== SETTINGS MODAL ===== -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>
+          <i data-lucide="settings"></i>
+          Settings
+        </h2>
+        <button class="btn-icon modal-close" id="settingsClose" aria-label="Close settings">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+
+        <!-- Model Selection -->
+        <div class="setting-group">
+          <label class="setting-label">
+            <i data-lucide="cpu"></i> AI Model
+          </label>
+          <select id="modelSelect" class="setting-select">
+            <!-- Populated dynamically -->
+          </select>
+          <p class="setting-hint" id="modelHint">Automatically picks the best free model</p>
+        </div>
+
+        <!-- System Prompt -->
+        <div class="setting-group">
+          <label class="setting-label">
+            <i data-lucide="message-square-code"></i> System Prompt
+          </label>
+          <textarea id="systemPrompt" class="setting-textarea" placeholder="You are a helpful AI assistant..."
+            rows="4">You are Uday's AI, a helpful, friendly, and knowledgeable AI assistant. You provide clear, concise, and accurate responses. When writing code, you include comments and explanations. You use markdown formatting for better readability.</textarea>
+          <p class="setting-hint">Customize how the AI behaves and responds</p>
+        </div>
+
+        <!-- Theme -->
+        <div class="setting-group">
+          <label class="setting-label">
+            <i data-lucide="palette"></i> Theme
+          </label>
+          <div class="setting-row">
+            <div class="theme-options">
+              <button class="theme-option active" data-theme="dark" id="themeDarkBtn">
+                <i data-lucide="moon"></i> Dark
+              </button>
+              <button class="theme-option" data-theme="light" id="themeLightBtn">
+                <i data-lucide="sun"></i> Light
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accent Color -->
+        <div class="setting-group">
+          <label class="setting-label">
+            <i data-lucide="droplets"></i> Accent Color
+          </label>
+          <div class="color-picker">
+            <button class="color-swatch active" data-color="indigo"
+              style="--swatch: linear-gradient(135deg, #6366f1, #a855f7)"></button>
+            <button class="color-swatch" data-color="cyan"
+              style="--swatch: linear-gradient(135deg, #06b6d4, #3b82f6)"></button>
+            <button class="color-swatch" data-color="emerald"
+              style="--swatch: linear-gradient(135deg, #10b981, #06b6d4)"></button>
+            <button class="color-swatch" data-color="rose"
+              style="--swatch: linear-gradient(135deg, #f43f5e, #ec4899)"></button>
+            <button class="color-swatch" data-color="amber"
+              style="--swatch: linear-gradient(135deg, #f59e0b, #ef4444)"></button>
+            <button class="color-swatch" data-color="violet"
+              style="--swatch: linear-gradient(135deg, #8b5cf6, #ec4899)"></button>
+          </div>
+        </div>
+
+        <!-- Sound -->
+        <div class="setting-group">
+          <label class="setting-label">
+            <i data-lucide="volume-2"></i> Sound Effects
+          </label>
+          <div class="setting-row">
+            <span class="setting-desc">Play sound when message is received</span>
+            <label class="toggle">
+              <input type="checkbox" id="soundToggle">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Danger Zone -->
+        <div class="setting-group danger-zone">
+          <label class="setting-label">
+            <i data-lucide="trash-2"></i> Danger Zone
+          </label>
+          <button class="btn-danger" id="clearAllData">
+            Clear All Conversations
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Scripts -->
+  <script src="/js/storage.js"></script>
+  <script src="/js/markdown.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/ui.js"></script>
+  <script src="/js/settings.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+
+</html>
