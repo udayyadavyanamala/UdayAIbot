@@ -1,11 +1,14 @@
 // api.js — OpenRouter API client with SSE streaming
 
+// Set `window.BACKEND_URL` in `index.html` to the deployed backend (e.g. https://your-app.onrender.com)
+// If not set, the code will use relative paths so it still works when backend is served from the same origin.
 const Api = (() => {
   let abortController = null;
+  const BASE = (typeof window !== 'undefined' && window.BACKEND_URL) ? String(window.BACKEND_URL).replace(/\/$/, '') : '';
 
   async function fetchModels() {
     try {
-      const res = await fetch('/api/models');
+      const res = await fetch(BASE + '/api/models');
       if (!res.ok) return [];
       const text = await res.text();
       let data = { models: [] };
@@ -27,7 +30,7 @@ const Api = (() => {
     abortController = new AbortController();
 
     try {
-      const res = await fetch('/api/chat', {
+      const res = await fetch(BASE + '/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages, model, systemPrompt }),
